@@ -1,90 +1,75 @@
-<link rel="stylesheet" type="text/css" href="styles.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>301 URL Checker</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<body>
 <h1>Check URL Statuses</h1>
 <p>Enter ULRs below (One Per Line)</p>
 <form method="post">
-	<textarea name="urls" rows="20" cols="100"></textarea>
+	<textarea id="urls" name="urls" rows="20" cols="100"></textarea>
 	<br />
 	<br />
 	<label for="show_array">Do you want to see just the list of redirects?</label>
-	<select name="show_array" >
+	<select id="show_array" name="show_array" >
 		<option value="no">No</option>
 		<option value="yes">Yes</option>
 	</select>
 	<br />
 	<br />
-	<input type="submit" value="Check URLs" name="submit" />
+	<div id="submit">
+		<input type="submit" value="Check URLs" name="submit" />
+	</div>
 </form>
+<div id="counter"></div>
+<div id="returnHTML"></div>
+<script type="text/javascript">
 
-<?php
-$filename = 'statuses.csv';
+	var splitURL;
 
-if (file_exists($filename)) {
-    echo "<br /><a href=\"statuses.csv\">Download CSV</a><br /><br />";
-}
-
-/*
-http://www.w3schools.com/
-http://themeforest.net/asasasdasdas
-http://themeforest.net/
-http://google.com/
-*/
-
-// echo "<br />";
-if (isset($_POST['submit'])) {
-
-	$myfile = fopen("statuses.csv", "w") or die("Unable to open file!");
-	$txt = "URL,Status,NewLocation,NewLocationStatus\r\n";
-	$urls = $_POST['urls'];
-	$urlsInArray = explode("\n", $urls);
-	$itemCount = count($urlsInArray);
-	$maxUrls = 1000;
-	if ($itemCount > $maxUrls) {
-		echo "You added {$maxUrls} URLs which is too many. please only add a maximum of {$maxUrls} URLs<br />";
-		echo "<a href='./url-status-checker.php'>Refresh Page</a>";
-		return;
-	}
-	//print_r($urlsInArray);
-	echo "<table><tr><th>Original URL</th><th>Status</th><th>Final Location URL</th><th>Status</th></tr>";
-	foreach ($urlsInArray as $url) {
-		//echo $url.'<br />';
-		$url = trim($url);
-		$urlArray = get_headers($url,1);
-		//echo $urlArray[0];
-		$location = '';
-		$toLocation = '';
-		$nextLocation = '';
-		if ($urlArray[0] == 'HTTP/1.0 301 Moved Permanently' || $urlArray[0] == 'HTTP/1.1 301 Moved Permanently' || $urlArray[0] == 'HTTP/1.1 302 Found') {
-			$finalLocation = $urlArray['Location'];		
-			if (is_array($finalLocation)) {
-				// make finalLocation last item in array	
-				if ($_POST['show_array'] == 'yes') {
-					print_r($finalLocation);
-					return;
-				}
-				$finalLocation = end($finalLocation);
-			}			
-			$location = ' To - ' . $finalLocation;
-			$toLocation = $finalLocation;
-			$toLocationArray = get_headers($toLocation,1);
-			/*print_r($toLocationArray);
-			return;*/
-			$nextLocation = " status = " . ($toLocationArray[0]);
-			//print_r($finalURL);
-		}
-		echo '<tr>';
-		echo '<td>'. $url. '</td>';
-		echo '<td>'. $urlArray[0] . '</td>';
-		echo '<td>'. $location . '</td>';
-		echo '<td>'. $nextLocation . '</td>';
-		echo '</tr>';
-		$txt .= $url.','. $urlArray[0]. ',' . $toLocation . ',' . $nextLocation . "\r\n"; 
+	$('form').submit(function(event) {
+		var urls = $('#urls').val();
+		var showAllRedirect = $('#show_array').val();
+		$('#submit').html('<img src="images/loading.gif" style="width:250px;" />');
 		
+		// call ajax for each url
+		splitURL = urls.split('\n');
+		callAjax(splitURL);
+		return false
+	});
+
+	function callAjax(urlArray) {
+
+		var counter = 0;
+		urlLength = urlArray.length;
+		var urls = urlArray;
+
+		$('#counter').append('<p><span class="num">'+ counter +'</span> files complete out of '+urlLength + '</p>');
+		$('#returnHTML').append('<table><tr><td>URL</td><td>Response</td></tr></table>');
+
+		function recursiveAjax(){
+			$.ajax({        
+			     url:'url-ajax-page.php',        
+			     type:'POST',              
+			     data:{submit:urls[counter]/*,show_array:showAllRedirect*/},         
+			     success:function(HTML){
+			     	$('#submit').html(' ');
+			     	if(counter < urlLength){
+			     		counter++;
+						$('#counter .num').text(counter);
+			     		$('#returnHTML table').append(HTML);
+			     		recursiveAjax();
+
+			     	}
+			     }
+		     }); 
+		}
+
+		recursiveAjax();
 	}
-	echo "</table>";
-
-	fwrite($myfile, $txt);
-	fclose($myfile);
-
-} 
-
-?>
+</script>
+</body>
+</html>
