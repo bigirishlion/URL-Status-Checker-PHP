@@ -1,11 +1,11 @@
 <?php
 
 require_once('classes/curl-class.php');
-require_once('classes/print-class.php');
 
 if (isset($_POST['submit'])) {
 
 	$url = $_POST['submit'];
+	$site_name = $_POST['site_name'];
 
 	$cc = new myCurl($url);
 	$cc->createCurl();
@@ -19,15 +19,13 @@ if (isset($_POST['submit'])) {
 		$redirect_num = '';
 	}
 
-	echo '<tr>';
-	echo '<td>'. $url. '</td>';
-	echo '<td>'. $status . '</td>';
-	echo '<td>'. $redirect_num . '</td>';
-	echo '</tr>';
+	$file_path = 'export/'.$site_name.'url-checker-export.csv';
+	$txt = "{$url},{$status},{$redirect_num}\n";
+	file_put_contents($file_path, $txt, FILE_APPEND | LOCK_EX);
 
-	$items[] = new printObj($status, $redirect_num, $url);
+	$arr = array('url'=>$url, 'status'=>$status, 'redirect_num' => $redirect_num);
 
-	print_r($items);
+	echo json_encode($arr);
 
 }
 
