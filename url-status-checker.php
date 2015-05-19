@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>301 URL Checker</title>
-	<link rel="stylesheet" type="text/css" href="styles.css">
+	<link rel="stylesheet" type="text/css" href="includes/styles.css">
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
 <body>
@@ -33,7 +33,7 @@
 	$('form').submit(function(event) {
 		var urls = $('#urls').val();
 		var showAllRedirect = $('#show_array').val();
-		$('#submit').html('<img src="images/loading.gif" style="width:250px;" />');
+		$('#submit').html('<img src="includes/images/loading.gif" style="width:250px;" />');
 		
 		// call ajax for each url
 		splitURL = urls.split('\n');
@@ -48,11 +48,11 @@
 		var urls = urlArray;
 
 		$('#counter').append('<p><span class="num">'+ counter +'</span> files complete out of '+urlLength + '</p>');
-		$('#returnHTML').append('<table><tr><td>URL</td><td>Response</td></tr></table>');
+		$('#returnHTML').append('<table><tr><td>URL</td><td>Response</td><td>Number of Redirects</td></tr></table>');
 
 		function recursiveAjax(){
 			$.ajax({        
-			     url:'url-ajax-page.php',        
+			     url:'includes/url-ajax-page.php',        
 			     type:'POST',              
 			     data:{submit:urls[counter]/*,show_array:showAllRedirect*/},         
 			     success:function(HTML){
@@ -63,6 +63,8 @@
 			     		$('#returnHTML table').append(HTML);
 			     		recursiveAjax();
 
+			     	} else{
+			     		
 			     	}
 			     }
 		     }); 
