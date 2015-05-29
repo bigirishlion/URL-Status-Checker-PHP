@@ -85,6 +85,7 @@ class mycurl {
          curl_setopt($s,CURLOPT_COOKIEJAR,$this->_cookieFileLocation); 
          curl_setopt($s,CURLOPT_COOKIEFILE,$this->_cookieFileLocation); 
          curl_setopt($s, CURLOPT_SSL_VERIFYPEER, false);
+         //curl_setopt($s, CURLOPT_SSLVERSION,3);
 
          if($this->authentication == 1){ 
            curl_setopt($s, CURLOPT_USERPWD, $this->auth_name.':'.$this->auth_pass); 
