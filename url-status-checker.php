@@ -70,7 +70,7 @@
 		var urls = urlArray;
 
 		$('#counter').append('<p><span class="num">'+ counter +'</span> files complete out of '+urlLength + '</p>');
-		$('#returnHTML').append('<table><tr><td>URL</td><td>Response</td><td>Number of Redirects</td></tr></table>');
+		$('#returnHTML').append('<table><tr><td>URL</td><td>Response</td><td># of Redirects</td><td>Errors</td></tr></table>');
 
 		function recursiveAjax(){
 			if (counter == 0) {
@@ -90,11 +90,16 @@
 			     	if(counter < urlLength){
 			     		counter++;
 						$('#counter .num').text(counter);
-			     		$('#returnHTML table').append('<tr><td>'+json.url+'</td><td>'+json.status+'</td><td>'+json.redirect_num+'</td></tr>');
+						var error = '';
+						var errorClass = '';
+						if (json.errors != null){
+							error = '<a href="#" title="'+json.errors+'">Error</a>';
+							errorClass = 'error';
+						}
+						var status = json.status;
+			     		$('#returnHTML table').append('<tr class="'+ errorClass +' code'+status+'"><td>'+json.url+'</td><td>'+json.status+'</td><td>'+json.redirect_num+'</td><td>'+ error +'</td></tr>');
 			     		recursiveAjax();
 
-			     	} else{
-			     		
 			     	}
 			     }
 		     }); 

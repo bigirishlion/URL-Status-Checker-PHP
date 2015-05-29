@@ -12,9 +12,10 @@ if (isset($_POST['submit'])) {
 
 	$status = $cc->getHttpStatus();
 	$redirect_num = $cc->getNumberOfRedirects();
+	$error = $cc->getErrors();
 
 	if ($redirect_num >= 1) {
-		$status = '301/'.$status;
+		$status = '301-'.$status;
 	} else{
 		$redirect_num = '';
 	}
@@ -23,7 +24,7 @@ if (isset($_POST['submit'])) {
 	$txt = "{$url},{$status},{$redirect_num}\n";
 	file_put_contents($file_path, $txt, FILE_APPEND | LOCK_EX);
 
-	$arr = array('url'=>$url, 'status'=>$status, 'redirect_num' => $redirect_num);
+	$arr = array('url'=>$url, 'status'=>$status, 'redirect_num' => $redirect_num, 'errors' => $error);
 
 	echo json_encode($arr);
 

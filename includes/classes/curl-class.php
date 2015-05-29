@@ -15,6 +15,7 @@ class mycurl {
      protected $_includeHeader; 
      protected $_noBody; 
      protected $_status; 
+     protected $_errors; 
      protected $_redirect_num; 
      protected $_binaryTransfer; 
      public    $authentication = 0; 
@@ -119,7 +120,7 @@ class mycurl {
 
          $error = curl_error($s);
          if ($error) {             
-            print_r($error);
+            $this->_errors = $error;
          }
 
          curl_close($s); 
@@ -134,6 +135,12 @@ class mycurl {
    public function getHttpStatus() 
    { 
        return $this->_status; 
+   }
+
+
+   public function getErrors() 
+   { 
+       return $this->_errors;
    }
 
    public function __tostring(){ 

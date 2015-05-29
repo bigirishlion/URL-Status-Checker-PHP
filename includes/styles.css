@@ -1,2 +1,7 @@
 body {background: #888; padding: 50px 0 0;}
 input[type="submit"] { border:none; background: #37A0BB;color: #fff;padding: 10px; border-radius: 6px;}
+#returnHTML td{padding: 5px;}
+tr.code200{background: #3EA54F; color: #fff;}
+tr.code404{background: #9D6363; color:#fff;}
+tr.code301-200 {background: #E8E4B4;}
+tr.error{background: #982323 !important; color:#fff;}
