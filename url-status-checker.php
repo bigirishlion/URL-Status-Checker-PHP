@@ -23,37 +23,54 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-<div class="container">
+<div class="container" class="row">
+	<div class="col-md-9">
 <h1>Check URL Statuses</h1>
-<form method="post">
-	<div>
-		<label for="siteName">Enter Your Site Name</label>
-		<input type="text" id="siteName" name="siteName" />
+<form method="post" fole="form">
+	<div class="checkbox">
+			<label><input type="checkbox" name="SaveFile" id="SaveFile" />Would you like to save a file?</label>
+		</div>
+	<div class="form-group sitename">
+			<label for="siteName">Enter Your Site Name</label>
+			<input class="form-control" type="text" id="siteName" name="siteName" />
 	</div>
-	<div>
-		<label for="urls">Enter ULRs below (One Per Line)</label><br />
-		<textarea id="urls" name="urls" rows="20" cols="100"></textarea>
+	<div class="form-group">
+			<label for="urls">Enter ULRs below (One Per Line)</label><br />
+			<textarea id="urls" name="urls" rows="20" cols="100"></textarea>
 	</div>
 	<br />
-	<div id="submit">
-		<input type="submit" value="Check URLs" name="submit" />
+	<div id="submit" class="form-group">
+		<input type="submit" value="Check URLs" name="submit" class="btn btn-default" />
 	</div>
 </form>
-<div id="counter"></div>
-<div id="returnHTML"></div>
-<div class="export"><a href="includes/export/url-checker-export.csv">Export File</a></div>
+		<div id="counter"></div>
+		<div id="returnHTML"></div>
+		<div class="export"><a href="includes/export/url-checker-export.csv">Export File</a></div>
+</div>
 </div>
 <script type="text/javascript">
+
+	$(function(){
+		$('#SaveFile').click(function(event) {
+			if ($(this).is(':checked')) {
+				$('.sitename').show();
+			} else {
+				$('.sitename').hide();
+			}
+		});
+	})
 
 	var splitURL;
 	var siteName;
 	var urlIndex;
+	var saveFile;
 
 	$('form').submit(function(event) {
 
 		var urls = $('#urls').val();
 		var showAllRedirect = $('#show_array').val();
 		siteName = $('#siteName').val();
+		saveFile = $('#SaveFile').val();
 
 		$('#submit').html('<img src="includes/images/loading.gif" style="width:250px;" />');
 		
@@ -84,7 +101,7 @@
 			     url:'includes/url-ajax-page.php',        
 			     type:'POST',  
 			     dataType:'json',            
-			     data:{submit:urls[counter],site_name:siteName,url_index:urlIndex},         
+			     data:{submit:urls[counter],site_name:siteName,url_index:urlIndex,save_file:saveFile},         
 			     success:function(json){
 			     	$('#submit').html(' ');
 			     	if(counter < urlLength){
