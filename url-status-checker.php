@@ -3,41 +3,106 @@
 <head>
     <meta charset="utf-8" />
     <title>301 URL Checker</title>
-	<link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="includes/styles.css">
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
 <body>
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">URL Status Checker</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+<div class="container" class="row">
+	<div class="col-md-12">
 <h1>Check URL Statuses</h1>
-<p>Enter ULRs below (One Per Line)</p>
-<form method="post">
-	<textarea id="urls" name="urls" rows="20" cols="100"></textarea>
-	<br />
-	<br />
-	<label for="show_array">Do you want to see just the list of redirects?</label>
-	<select id="show_array" name="show_array" >
-		<option value="no">No</option>
-		<option value="yes">Yes</option>
-	</select>
-	<br />
-	<br />
-	<div id="submit">
-		<input type="submit" value="Check URLs" name="submit" />
+<form method="post" fole="form">
+	<div class="form-group">
+			<label for="urls">Enter ULRs below (One Per Line)</label><br />
+			<textarea class="form-control" id="urls" name="urls" rows="20" cols="100"></textarea>
+	</div>	
+	<div class="checkbox">
+			<label><input type="checkbox" name="SaveFile" id="SaveFile" /><b>Would you like to save a file?</b></label>
+		</div>
+	<div class="form-group sitename">
+			<label for="siteName">Enter Your Site Name</label>
+			<div class="input-group">
+				<span class="input-group-addon">www.</span>
+				<input class="form-control" type="text" id="siteName" name="siteName" />
+				<span class="input-group-addon">.com</span>
+			</div>
 	</div>
+	<div id="submit" class="form-group">
+		<input type="submit" value="Check URLs" name="submit" class="btn btn-default" />
+	</div>
+	<div class="errors"></div>
 </form>
-<div id="counter"></div>
-<div id="returnHTML"></div>
+		<div id="counter"></div>
+		<div id="returnHTML"></div>
+		<div class="export"><a class="btn btn-primary" href="includes/export/url-checker-export.csv">Export File</a></div>
+</div>
+</div>
 <script type="text/javascript">
 
+	$(function(){
+		$('#SaveFile').click(function(event) {
+			if ($(this).is(':checked')) {
+				$('.sitename').show();
+			} else {
+				$('.sitename').hide();
+			}
+		});
+	})
+
 	var splitURL;
+	var siteName;
+	var urlIndex;
+	var saveFile;
+	var errors;
 
 	$('form').submit(function(event) {
+
+		errors = false;
+
 		var urls = $('#urls').val();
 		var showAllRedirect = $('#show_array').val();
-		$('#submit').html('<img src="images/loading.gif" style="width:250px;" />');
-		
-		// call ajax for each url
-		splitURL = urls.split('\n');
-		callAjax(splitURL);
+		siteName = $('#siteName').val();
+		saveFile = 'off';
+		saveFile = ($('#SaveFile').is(':checked')) ? 'on' : 'off';
+
+		$('.form-group').removeClass('has-error');
+
+		if (urls == "") {
+			$('#urls').parent('.form-group').addClass('has-error');
+			$('.errors').html('<p>Please add URL(s)</p>');
+			errors = true;
+		}
+
+		if (saveFile == 'on') {
+			if(siteName == ''){
+				$('#siteName').parents('.form-group').addClass('has-error');
+				$('.errors').html('<p>Please add a Site Name</p>');
+				errors = true;
+			}
+		}
+
+		console.log(saveFile);
+		if (!errors) {		
+			// call ajax for each url			
+			$('#submit').html('<img src="includes/images/loading.gif" style="width:250px;" />');
+			splitURL = urls.split('\n');
+			callAjax(splitURL);
+		};
 		return false
 	});
 
@@ -48,19 +113,34 @@
 		var urls = urlArray;
 
 		$('#counter').append('<p><span class="num">'+ counter +'</span> files complete out of '+urlLength + '</p>');
-		$('#returnHTML').append('<table><tr><td>URL</td><td>Response</td></tr></table>');
+		$('#returnHTML').append('<table class="table table-bordered table-striped js-options-table"><tr><td>URL</td><td>Response</td><td># of Redirects</td><td>Errors</td></tr></table>');
 
 		function recursiveAjax(){
+			if (counter == 0) {
+				urlIndex = 'first';
+			} else if (counter == urlLength - 1) {
+				urlIndex = 'last';
+			} else {
+				urlIndex = '';
+			}
 			$.ajax({        
-			     url:'url-ajax-page.php',        
-			     type:'POST',              
-			     data:{submit:urls[counter]/*,show_array:showAllRedirect*/},         
-			     success:function(HTML){
+			     url:'includes/url-ajax-page.php',        
+			     type:'POST',  
+			     dataType:'json',            
+			     data:{submit:urls[counter],site_name:siteName,url_index:urlIndex,save_file:saveFile},         
+			     success:function(json){
 			     	$('#submit').html(' ');
 			     	if(counter < urlLength){
 			     		counter++;
 						$('#counter .num').text(counter);
-			     		$('#returnHTML table').append(HTML);
+						var error = '';
+						var errorClass = '';
+						if (json.errors != null){
+							error = '<a href="#" title="'+json.errors+'">Error</a>';
+							errorClass = 'error';
+						}
+						var status = json.status;
+			     		$('#returnHTML table').append('<tr class="'+ errorClass +' code'+status+'"><td>'+json.url+'</td><td>'+json.status+'</td><td>'+json.redirect_num+'</td><td>'+ error +'</td></tr>');
 			     		recursiveAjax();
 
 			     	}

@@ -15,6 +15,7 @@ class mycurl {
      protected $_includeHeader; 
      protected $_noBody; 
      protected $_status; 
+     protected $_errors; 
      protected $_redirect_num; 
      protected $_binaryTransfer; 
      public    $authentication = 0; 
@@ -84,6 +85,7 @@ class mycurl {
          curl_setopt($s,CURLOPT_COOKIEJAR,$this->_cookieFileLocation); 
          curl_setopt($s,CURLOPT_COOKIEFILE,$this->_cookieFileLocation); 
          curl_setopt($s, CURLOPT_SSL_VERIFYPEER, false);
+         //curl_setopt($s, CURLOPT_SSLVERSION,3);
 
          if($this->authentication == 1){ 
            curl_setopt($s, CURLOPT_USERPWD, $this->auth_name.':'.$this->auth_pass); 
@@ -119,7 +121,7 @@ class mycurl {
 
          $error = curl_error($s);
          if ($error) {             
-            print_r($error);
+            $this->_errors = $error;
          }
 
          curl_close($s); 
@@ -134,6 +136,12 @@ class mycurl {
    public function getHttpStatus() 
    { 
        return $this->_status; 
+   }
+
+
+   public function getErrors() 
+   { 
+       return $this->_errors;
    }
 
    public function __tostring(){ 
