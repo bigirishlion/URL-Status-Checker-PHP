@@ -24,28 +24,32 @@
       </div>
     </nav>
 <div class="container" class="row">
-	<div class="col-md-9">
+	<div class="col-md-12">
 <h1>Check URL Statuses</h1>
 <form method="post" fole="form">
+	<div class="form-group">
+			<label for="urls">Enter ULRs below (One Per Line)</label><br />
+			<textarea class="form-control" id="urls" name="urls" rows="20" cols="100"></textarea>
+	</div>	
 	<div class="checkbox">
-			<label><input type="checkbox" name="SaveFile" id="SaveFile" />Would you like to save a file?</label>
+			<label><input type="checkbox" name="SaveFile" id="SaveFile" /><b>Would you like to save a file?</b></label>
 		</div>
 	<div class="form-group sitename">
 			<label for="siteName">Enter Your Site Name</label>
-			<input class="form-control" type="text" id="siteName" name="siteName" />
+			<div class="input-group">
+				<span class="input-group-addon">www.</span>
+				<input class="form-control" type="text" id="siteName" name="siteName" />
+				<span class="input-group-addon">.com</span>
+			</div>
 	</div>
-	<div class="form-group">
-			<label for="urls">Enter ULRs below (One Per Line)</label><br />
-			<textarea id="urls" name="urls" rows="20" cols="100"></textarea>
-	</div>
-	<br />
 	<div id="submit" class="form-group">
 		<input type="submit" value="Check URLs" name="submit" class="btn btn-default" />
 	</div>
+	<div class="errors"></div>
 </form>
 		<div id="counter"></div>
 		<div id="returnHTML"></div>
-		<div class="export"><a href="includes/export/url-checker-export.csv">Export File</a></div>
+		<div class="export"><a class="btn btn-primary" href="includes/export/url-checker-export.csv">Export File</a></div>
 </div>
 </div>
 <script type="text/javascript">
@@ -64,19 +68,41 @@
 	var siteName;
 	var urlIndex;
 	var saveFile;
+	var errors;
 
 	$('form').submit(function(event) {
+
+		errors = false;
 
 		var urls = $('#urls').val();
 		var showAllRedirect = $('#show_array').val();
 		siteName = $('#siteName').val();
-		saveFile = $('#SaveFile').val();
+		saveFile = 'off';
+		saveFile = ($('#SaveFile').is(':checked')) ? 'on' : 'off';
 
-		$('#submit').html('<img src="includes/images/loading.gif" style="width:250px;" />');
-		
-		// call ajax for each url
-		splitURL = urls.split('\n');
-		callAjax(splitURL);
+		$('.form-group').removeClass('has-error');
+
+		if (urls == "") {
+			$('#urls').parent('.form-group').addClass('has-error');
+			$('.errors').html('<p>Please add URL(s)</p>');
+			errors = true;
+		}
+
+		if (saveFile == 'on') {
+			if(siteName == ''){
+				$('#siteName').parents('.form-group').addClass('has-error');
+				$('.errors').html('<p>Please add a Site Name</p>');
+				errors = true;
+			}
+		}
+
+		console.log(saveFile);
+		if (!errors) {		
+			// call ajax for each url			
+			$('#submit').html('<img src="includes/images/loading.gif" style="width:250px;" />');
+			splitURL = urls.split('\n');
+			callAjax(splitURL);
+		};
 		return false
 	});
 
@@ -87,7 +113,7 @@
 		var urls = urlArray;
 
 		$('#counter').append('<p><span class="num">'+ counter +'</span> files complete out of '+urlLength + '</p>');
-		$('#returnHTML').append('<table><tr><td>URL</td><td>Response</td><td># of Redirects</td><td>Errors</td></tr></table>');
+		$('#returnHTML').append('<table class="table table-bordered table-striped js-options-table"><tr><td>URL</td><td>Response</td><td># of Redirects</td><td>Errors</td></tr></table>');
 
 		function recursiveAjax(){
 			if (counter == 0) {
