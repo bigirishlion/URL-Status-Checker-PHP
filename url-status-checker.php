@@ -113,7 +113,7 @@
 		var urls = urlArray;
 
 		$('#counter').append('<p><span class="num">'+ counter +'</span> files complete out of '+urlLength + '</p>');
-		$('#returnHTML').append('<table class="table table-bordered table-striped js-options-table"><tr><td>URL</td><td>Response</td><td># of Redirects</td><td>Errors</td></tr></table>');
+		$('#returnHTML').append('<table class="table table-bordered js-options-table"><tr><td>URL</td><td>Response</td><td># of Redirects</td><td>Errors</td></tr></table>');
 
 		function recursiveAjax(){
 			if (counter == 0) {
