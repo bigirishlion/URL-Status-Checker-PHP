@@ -17,6 +17,7 @@ class mycurl {
      protected $_status; 
      protected $_errors; 
      protected $_redirect_num; 
+     protected $_last_url;
      protected $_binaryTransfer; 
      public    $authentication = 0; 
      public    $auth_name      = ''; 
@@ -116,8 +117,10 @@ class mycurl {
          curl_setopt($s,CURLOPT_REFERER,$this->_referer); 
 
          $this->_webpage = curl_exec($s); 
+
          $this->_status = curl_getinfo($s,CURLINFO_HTTP_CODE); 
          $this->_redirect_num = curl_getinfo($s,CURLINFO_REDIRECT_COUNT); 
+         $this->_last_url = curl_getinfo($s,CURLINFO_EFFECTIVE_URL);
 
          $error = curl_error($s);
          if ($error) {             
@@ -138,6 +141,10 @@ class mycurl {
        return $this->_status; 
    }
 
+   public function getLastEfectiveUrl() 
+   { 
+       return $this->_last_url;
+   }
 
    public function getErrors() 
    { 
