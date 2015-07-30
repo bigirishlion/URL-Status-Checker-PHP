@@ -22,6 +22,7 @@ if (isset($_POST['submit'])) {
 	$status = $cc->getHttpStatus();
 	$redirect_num = $cc->getNumberOfRedirects();
 	$error = $cc->getErrors();
+	$last_url = $cc->getLastEfectiveUrl();
 
 	// Add status code for 301s
 	if ($redirect_num >= 1) {
@@ -38,7 +39,7 @@ if (isset($_POST['submit'])) {
 	}
 
 	// create array for json objects
-	$arr = array('url'=>$url, 'status'=>$status, 'redirect_num' => $redirect_num, 'errors' => $error);
+	$arr = array('url'=>$url, 'final_url' => $last_url, 'status'=>$status, 'redirect_num' => $redirect_num, 'errors' => $error);
 
 	// echo json
 	echo json_encode($arr);
