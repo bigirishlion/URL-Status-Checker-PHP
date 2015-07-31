@@ -33,8 +33,12 @@ if (isset($_POST['submit'])) {
 
 	// if save file is active, create export
 	if ($save_file == 'on') {
+		// If export folder doesnt exist create it
+		if (!file_exists('export')) {
+    		mkdir('export', 0755, true);
+		}
 		$file_path = 'export/'.$site_name.'-url-checker-export.csv';
-		$txt = "{$url},{$status},{$redirect_num}\n";
+		$txt = "{$url},{$last_url},{$status},{$redirect_num}\n";
 		file_put_contents($file_path, $txt, FILE_APPEND | LOCK_EX);
 	}
 
