@@ -49,7 +49,7 @@
 </form>
 		<div id="counter"></div>
 		<div id="returnHTML"></div>
-		<div class="export"><a class="btn btn-primary" href="includes/export/url-checker-export.csv">Export File</a></div>
+		<div class="export"><a class="btn btn-primary" href="#">Export File</a></div>
 </div>
 </div>
 <script type="text/javascript">
@@ -93,15 +93,28 @@
 				$('#siteName').parents('.form-group').addClass('has-error');
 				$('.errors').html('<p>Please add a Site Name</p>');
 				errors = true;
+			} else {
+				siteName = siteName.replace(/ /g, '-');
+				siteName = siteName.replace(/[^A-Za-z0-9\-]/g, '');
 			}
 		}
 
-		console.log(saveFile);
 		if (!errors) {		
 			// call ajax for each url			
 			$('#submit').html('<img src="includes/images/loading.gif" style="width:250px;" />');
 			splitURL = urls.split('\n');
-			callAjax(splitURL);
+
+			function cleanArray(actual){
+			  var newArray = new Array();
+			  for(var i = 0; i<actual.length; i++){
+			      if (actual[i]){
+			        newArray.push(actual[i]);
+			    }
+			  }
+			  return newArray;
+			}
+
+			callAjax(cleanArray(splitURL));
 		};
 		return false
 	});
@@ -120,6 +133,9 @@
 				urlIndex = 'first';
 			} else if (counter == urlLength - 1) {
 				urlIndex = 'last';
+				if (saveFile == 'on') {
+					$('.export').show().find('a').attr('href', 'includes/export/'+siteName+'-url-checker-export.csv');
+				};
 			} else {
 				urlIndex = '';
 			}
@@ -142,8 +158,7 @@
 						var status = json.status;
 			     		$('#returnHTML table').append('<tr class="'+ errorClass +' code'+status+'"><td>'+json.url+'</td><td class="final">'+json.final_url+'</td><td>'+json.status+'</td><td>'+json.redirect_num+'</td><td>'+ error +'</td></tr>');
 			     		recursiveAjax();
-
-			     	}
+			     	} 
 			     }
 		     }); 
 		}
